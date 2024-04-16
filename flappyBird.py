@@ -90,3 +90,47 @@ class Passaro:
         retangulo = imagemRotacionada.get_rect(center = posicaoCentroImg)
         tela.blit(imagemRotacionada, retangulo.topleft)
         
+    def getMask(self):
+        pygame.mask.from_surface(self.imagem)
+        
+class Cano: 
+    DISTANCIA = 200
+    VELOCIDADE = 5
+    
+    def __init__(self, x):
+        self.x = x
+        self.altura = 0
+        self.posicaoTop = 0
+        self.posicaoBot = 0
+        self.CANOTOP = pygame.transform.flip(IMG_CANO, False, True)
+        self.CANOBOT = IMG_CANO
+        self.passou = False
+        self.definirAltura()
+        
+    def definirAltura(self):
+        self.altura = random.randrange(50,450)
+        self.posicaoTop = self.altura - self.CANOTOP.get_height()
+        self.posicaoBot = self.altura + self.DISTANCIA
+        
+    def mover(self):
+        self.x -= self.VELOCIDADE
+        
+    def desenhar(self, tela):
+        tela.blit(self.CANOTOP, (self.x, self.posicaoTop))        
+        tela.blit(self.CANOBOT, (self.x, self.posicaoBot))
+        
+    def colidir(self, passaro):
+        passaroMask = passaro.get_mask()
+        topMask = pygame.mask.from_surface(self.CANOTOP)
+        botMask = pygame.mask.from_surface(self.CANOBOT)
+        
+        distanciaTop = (self.x - passaro.x, self.posicaoTop - round(passaro.y))
+        distanciaBot = (self.x - passaro.x, self.posicaoBot - round(passaro.y))
+        
+        colisaoTop = passaroMask.overlap(topMask, distanciaTop)
+        colisaoBot = passaroMask.overlap(botMask, distanciaBot)
+        
+        if colisaoTop or colisaoBot:
+            return True
+        else:
+            return False
